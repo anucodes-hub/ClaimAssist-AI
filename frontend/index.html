@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ClaimAssist AI — Insurance Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  padding-right: 80px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: var(--sans);
+}
+
+.toggle-password:hover {
+  text-decoration: underline;
+}
+
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 4rem;
+}
+
+  :root {
+    --bg: #050810;
+    --surface: #0b1121;
+    --card: #0f1829;
+    --border: #1a2540;
+    --accent: #2563eb;
+    --accent2: #06b6d4;
+    --accent3: #8b5cf6;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --mono: 'DM Mono', monospace;
+    --sans: 'Space Grotesk', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; overflow-x: hidden; }
+  
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image: 
+      linear-gradient(rgba(37,99,235,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37,99,235,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+  
+  .app { position: relative; z-index: 1; }
+  
+  /* NAV */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 2rem; border-bottom: 1px solid var(--border);
+    background: rgba(5,8,16,0.8); backdrop-filter: blur(20px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1.1rem; cursor: pointer; }
+  .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent), var(--accent3)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .nav-links { display: flex; gap: .5rem; }
+  .btn { padding: .5rem 1.25rem; border-radius: 8px; border: none; cursor: pointer; font-family: var(--sans); font-weight: 500; font-size: .875rem; transition: all .2s; }
+  .btn-ghost { background: transparent; color: var(--muted); }
+  .btn-ghost:hover { color: var(--text); background: var(--border); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(37,99,235,0.3); }
+  .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .btn-outline:hover { background: rgba(37,99,235,0.1); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { background: #059669; }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+  .btn-lg { padding: .875rem 2rem; font-size: 1rem; border-radius: 12px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+
+  /* PAGES */
+  .page { display: none; min-height: calc(100vh - 65px); }
+  .page.active { display: block; }
+
+  /* HOME PAGE */
+  .hero { text-align: center; padding: 8rem 2rem 4rem; max-width: 900px; margin: 0 auto; }
+  .badge { display: inline-flex; align-items: center; gap: .5rem; padding: .375rem 1rem; background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.3); border-radius: 999px; font-size: .8rem; color: var(--accent2); margin-bottom: 1.5rem; }
+  .badge-dot { width: 6px; height: 6px; background: var(--accent2); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.25rem; }
+  .gradient-text { background: linear-gradient(135deg, #fff 0%, var(--accent2) 50%, var(--accent3) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero p { color: var(--muted); font-size: 1.15rem; line-height: 1.7; max-width: 600px; margin: 0 auto 2.5rem; }
+  .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; max-width: 1100px; margin: 4rem auto; padding: 0 2rem; }
+  .feature-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; transition: all .3s; }
+  .feature-card:hover { border-color: rgba(37,99,235,0.4); transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+  .feat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 1rem; }
+  .feat-icon.blue { background: rgba(37,99,235,0.15); }
+  .feat-icon.cyan { background: rgba(6,182,212,0.15); }
+  .feat-icon.purple { background: rgba(139,92,246,0.15); }
+  .feat-icon.green { background: rgba(16,185,129,0.15); }
+  .feature-card h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: .5rem; }
+  .feature-card p { color: var(--muted); font-size: .9rem; line-height: 1.6; }
+
+  .how-it-works { max-width: 900px; margin: 2rem auto 6rem; padding: 0 2rem; text-align: center; }
+  .how-it-works h2 { font-size: 2rem; font-weight: 700; margin-bottom: 3rem; }
+  .steps { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; }
+  .step { flex: 1; min-width: 180px; max-width: 200px; }
+  .step-num { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent3)); display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto .75rem; }
+  .step p { color: var(--muted); font-size: .875rem; }
+  .step h4 { font-size: .95rem; margin-bottom: .25rem; }
+
+  /* AUTH */
+  .auth-wrap { min-height: calc(100vh - 65px); display: flex; align-items: center; justify-content: center; padding: 2rem; }
+  .auth-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 440px; }
+  .auth-card h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; }
+  .auth-card .sub { color: var(--muted); font-size: .9rem; margin-bottom: 2rem; }
+  .form-group { margin-bottom: 1.25rem; }
+  label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: .5rem; font-weight: 500; }
+  input[type=text], input[type=email], input[type=password] {
+    width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: .75rem 1rem; color: var(--text); font-family: var(--sans); font-size: .95rem; transition: border-color .2s;
+  }
+  input:focus { outline: none; border-color: var(--accent); }
+  .form-error { color: var(--danger); font-size: .8rem; margin-top: .375rem; }
+  .auth-toggle { text-align: center; margin-top: 1.5rem; color: var(--muted); font-size: .875rem; }
+  .auth-toggle a { color: var(--accent); cursor: pointer; text-decoration: none; }
+  .auth-toggle a:hover { text-decoration: underline; }
+
+  /* INSURANCE SELECT */
+  .page-header { text-align: center; padding: 3rem 2rem 2rem; }
+  .page-header h2 { font-size: 2rem; font-weight: 700; margin-bottom: .5rem; }
+  .page-header p { color: var(--muted); }
+  .insurance-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; max-width: 900px; margin: 0 auto; padding: 0 2rem 3rem; }
+  .ins-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem 1.5rem; text-align: center; cursor: pointer; transition: all .3s; }
+  .ins-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 20px 60px rgba(37,99,235,0.15); }
+  .ins-card.selected { border-color: var(--accent); background: rgba(37,99,235,0.08); }
+  .ins-icon { font-size: 2.5rem; margin-bottom: .75rem; }
+  .ins-card h3 { font-size: 1rem; font-weight: 600; }
+
+  .checklist-wrap { max-width: 700px; margin: 0 auto; padding: 0 2rem 4rem; }
+  .checklist-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+  .checklist-box h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.25rem; }
+  .checklist-item { display: flex; align-items: center; gap: .75rem; padding: .75rem 0; border-bottom: 1px solid var(--border); }
+  .checklist-item:last-child { border-bottom: none; }
+  .check-icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+  .check-icon.required { background: rgba(37,99,235,0.15); color: var(--accent); }
+  .check-icon.optional { background: rgba(100,116,139,0.15); color: var(--muted); }
+  .check-label { font-size: .9rem; flex: 1; }
+  .req-badge { font-size: .7rem; padding: .2rem .5rem; border-radius: 999px; background: rgba(37,99,235,0.1); color: var(--accent); }
+  .opt-badge { font-size: .7rem; padding: .2rem .5rem; border-radius: 999px; background: rgba(100,116,139,0.1); color: var(--muted); }
+
+  /* UPLOAD */
+  .upload-wrap { max-width: 800px; margin: 0 auto; padding: 0 2rem 4rem; }
+  .upload-zone { background: var(--card); border: 2px dashed var(--border); border-radius: 16px; padding: 3rem; text-align: center; cursor: pointer; transition: all .3s; position: relative; }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: rgba(37,99,235,0.04); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .upload-zone p { color: var(--muted); font-size: .95rem; }
+  .upload-zone .up-title { color: var(--text); font-size: 1.05rem; font-weight: 500; margin-bottom: .25rem; }
+  .upload-btns { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+  .upload-btns .btn { flex: 1; }
+
+  /* AI RESULT */
+  .result-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-top: 1.5rem; }
+  .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: gap; }
+  .claim-num { font-family: var(--mono); font-size: .85rem; color: var(--muted); }
+  .status-chip { padding: .35rem .85rem; border-radius: 999px; font-size: .8rem; font-weight: 600; }
+  .status-chip.approved { background: rgba(16,185,129,0.15); color: var(--success); }
+  .status-chip.pending { background: rgba(245,158,11,0.15); color: var(--warning); }
+  .status-chip.under_review { background: rgba(139,92,246,0.15); color: var(--accent3); }
+  .status-chip.rejected { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+  .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  .score-box { background: var(--surface); border-radius: 12px; padding: 1rem; text-align: center; }
+  .score-val { font-size: 1.75rem; font-weight: 700; font-family: var(--mono); }
+  .score-val.good { color: var(--success); }
+  .score-val.warn { color: var(--warning); }
+  .score-val.bad { color: var(--danger); }
+  .score-label { font-size: .75rem; color: var(--muted); margin-top: .25rem; }
+
+  .health-bar-wrap { margin-bottom: 1.5rem; }
+  .health-bar-label { display: flex; justify-content: space-between; font-size: .85rem; margin-bottom: .5rem; }
+  .health-bar { height: 10px; background: var(--border); border-radius: 999px; overflow: hidden; }
+  .health-fill { height: 100%; border-radius: 999px; transition: width 1s ease; }
+  
+  .reasons-list { margin-bottom: 1.5rem; }
+  .reasons-list h4 { font-size: .9rem; font-weight: 600; color: var(--muted); margin-bottom: .75rem; text-transform: uppercase; letter-spacing: .05em; }
+  .reason-item { display: flex; gap: .75rem; padding: .75rem; background: var(--surface); border-radius: 10px; margin-bottom: .5rem; border-left: 3px solid; }
+  .reason-item.high { border-color: var(--danger); }
+  .reason-item.medium { border-color: var(--warning); }
+  .reason-item.low { border-color: var(--muted); }
+  .reason-icon { font-size: 1.1rem; }
+  .reason-text { font-size: .875rem; flex: 1; }
+  .reason-sev { font-size: .7rem; padding: .15rem .5rem; border-radius: 999px; align-self: flex-start; margin-top: .1rem; }
+  .reason-sev.high { background: rgba(239,68,68,0.15); color: var(--danger); }
+  .reason-sev.medium { background: rgba(245,158,11,0.15); color: var(--warning); }
+
+  .extracted-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; }
+  .extracted-item { background: var(--surface); border-radius: 8px; padding: .75rem; }
+  .ext-key { font-size: .7rem; color: var(--muted); margin-bottom: .15rem; text-transform: uppercase; letter-spacing: .05em; }
+  .ext-val { font-size: .875rem; font-family: var(--mono); }
+
+  .hitl-box { background: var(--surface); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+  .hitl-icon { font-size: 2rem; }
+  .hitl-text h4 { font-size: .95rem; font-weight: 600; margin-bottom: .25rem; }
+  .hitl-text p { font-size: .85rem; color: var(--muted); }
+  .hitl-actions { display: flex; gap: .75rem; margin-top: 1rem; }
+
+  /* DASHBOARD */
+  .dash-wrap { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+  .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+  .dash-header h2 { font-size: 1.5rem; font-weight: 700; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
+  .stat-val { font-size: 2.25rem; font-weight: 700; font-family: var(--mono); }
+  .stat-label { color: var(--muted); font-size: .85rem; margin-top: .25rem; }
+  .stat-card.approved .stat-val { color: var(--success); }
+  .stat-card.pending .stat-val { color: var(--warning); }
+  .stat-card.rejected .stat-val { color: var(--danger); }
+  .stat-card.amount .stat-val { color: var(--accent2); font-size: 1.5rem; }
+
+  .claims-table { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .claims-table table { width: 100%; border-collapse: collapse; }
+  .claims-table th { text-align: left; padding: 1rem 1.25rem; font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .claims-table td { padding: .875rem 1.25rem; border-bottom: 1px solid var(--border); font-size: .875rem; }
+  .claims-table tr:last-child td { border-bottom: none; }
+  .claims-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .tracker { display: flex; align-items: center; gap: 0; }
+  .track-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .track-dot.done { background: var(--success); }
+  .track-dot.active { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .track-dot.todo { background: var(--border); }
+  .track-line { flex: 1; height: 2px; }
+  .track-line.done { background: var(--success); }
+  .track-line.todo { background: var(--border); }
+
+  .alert-box { display: flex; align-items: flex-start; gap: .75rem; padding: 1rem 1.25rem; background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.2); border-radius: 12px; margin-bottom: 1.5rem; }
+  .alert-box .alert-icon { font-size: 1.25rem; }
+  .alert-box p { font-size: .875rem; color: var(--accent2); }
+
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--muted); }
+  .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+
+  /* LOADER */
+  .loader-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; gap: 1rem; }
+  .spinner { width: 44px; height: 44px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader-steps { list-style: none; text-align: center; }
+  .loader-steps li { font-size: .85rem; color: var(--muted); padding: .25rem 0; }
+  .loader-steps li.active { color: var(--accent2); }
+  .loader-steps li.done { color: var(--success); }
+
+  .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; font-size: .9rem; z-index: 999; display: none; min-width: 280px; }
+  .toast.show { display: flex; align-items: center; gap: .75rem; animation: slideIn .3s; }
+  .toast.success { border-color: var(--success); }
+  .toast.error { border-color: var(--danger); }
+  @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  @media (max-width: 640px) {
+    .score-grid { grid-template-columns: repeat(2, 1fr); }
+    .extracted-grid { grid-template-columns: 1fr; }
+    nav { padding: 1rem; }
+    .steps { gap: 1rem; }
+    .claims-table { overflow-x: auto; }
+  }
+
+  .tab-bar { display: flex; gap: .5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+  .tab { padding: .625rem 1rem; font-size: .875rem; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all .2s; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  
+  details summary { cursor: pointer; padding: .75rem 0; color: var(--muted); font-size: .85rem; list-style: none; }
+  details summary::after { content: ' ▼'; font-size: .7rem; }
+  details[open] summary::after { content: ' ▲'; }
+  
+  .blur-meter { display: flex; align-items: center; gap: 1rem; padding: .75rem; background: var(--surface); border-radius: 10px; margin-bottom: 1rem; }
+  .blur-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .blur-dot.good { background: var(--success); }
+  .blur-dot.warn { background: var(--warning); }
+  .blur-dot.bad { background: var(--danger); }
+  .blur-text { font-size: .875rem; }
+  .blur-text span { color: var(--muted); font-size: .8rem; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- NAV -->
+<nav>
+  <div class="logo" onclick="navigate('home')">
+    <div class="logo-icon">⚡</div>
+    <span>ClaimAssist AI</span>
+  </div>
+  <div class="nav-links" id="navLinks">
+    <button class="btn btn-ghost" onclick="navigate('home')">Home</button>
+    <button class="btn btn-primary" onclick="navigate('login')" id="navLogin">Sign In</button>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== HOME PAGE ===== -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="badge"><div class="badge-dot"></div> AI-Powered Insurance Intelligence</div>
+    <h1>Stop Losing Claims to<br/><span class="gradient-text">Manual Processing</span></h1>
+    <p>ClaimAssist AI uses computer vision, OCR, and machine learning to validate your insurance documents in seconds — with explainable AI decisions you can trust.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary btn-lg" onclick="navigate('register')">Get Started Free →</button>
+      <button class="btn btn-outline btn-lg" onclick="scrollTo(0, 600)">See How It Works</button>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature-card">
+      <div class="feat-icon blue">🔍</div>
+      <h3>AI Document Analysis</h3>
+      <p>OpenCV blur detection + Gemini Vision OCR extracts structured data from any insurance document instantly.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon cyan">🧠</div>
+      <h3>ML-Powered Scoring</h3>
+      <p>Random Forest classifier predicts rejection probability with explainable reasons for every decision made.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon purple">🔗</div>
+      <h3>DigiLocker Integration</h3>
+      <p>Seamlessly fetch verified government documents — Aadhaar, RC, DL — directly from DigiLocker API.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon green">✅</div>
+      <h3>Smart HITL Decisions</h3>
+      <p>Auto-approve at 90%+ confidence. Flag borderline cases for human review. Zero manual bottlenecks.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon blue">📊</div>
+      <h3>Real-Time Dashboard</h3>
+      <p>Track all claims, monitor approval rates, and get smart alerts on your claim portfolio in one place.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon cyan">🛡️</div>
+      <h3>Fraud Detection</h3>
+      <p>Cross-validates dates, signatures, and document metadata to flag anomalies before they cost you.</p>
+    </div>
+  </div>
+
+  <div class="how-it-works">
+    <h2>How ClaimAssist Works</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Select Insurance</h4>
+        <p>Choose your insurance type to get a tailored document checklist</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Upload Documents</h4>
+        <p>Upload files directly or import verified docs from DigiLocker</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>AI Validation</h4>
+        <p>Our pipeline checks quality, extracts data, and runs ML scoring</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h4>Instant Decision</h4>
+        <p>Get approved, confirm borderline cases, or escalate for review</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LOGIN PAGE ===== -->
+<div class="page" id="page-login">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h2>Welcome back</h2>
+      <p class="sub">Sign in to access your claims dashboard</p>
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+       <div class="password-wrapper">
+  <input type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+  <button type="button" class="toggle-password" onclick="togglePassword('loginPwd', this)">Show</button>
+</div>
+        <div class="form-error" id="loginError"></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:.75rem;" id="loginBtn" onclick="doLogin()">Sign In</button>
+      <div class="auth-toggle">Don't have an account? <a onclick="navigate('register')">Create one</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== REGISTER PAGE ===== -->
+<div class="page" id="page-register">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h2>Create account</h2>
+      <p class="sub">Start filing smarter insurance claims today</p>
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="regName" placeholder="Rajesh Kumar"/>
+      </div>
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" id="regEmail" placeholder="you@example.com"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+      <div class="password-wrapper">
+  <input type="password" id="regPwd" placeholder="Min. 6 characters" onkeydown="if(event.key==='Enter')doRegister()"/>
+  <button type="button" class="toggle-password" onclick="togglePassword('regPwd', this)">Show</button>
+</div>
+<div class="form-error" id="regError"></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:.75rem;" id="regBtn" onclick="doRegister()">Create Account</button>
+      <div class="auth-toggle">Already have an account? <a onclick="navigate('login')">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== INSURANCE SELECT ===== -->
+<div class="page" id="page-insurance">
+  <div class="page-header">
+    <h2>Select Insurance Type</h2>
+    <p>Choose the type of insurance claim you want to file</p>
+  </div>
+  <div class="insurance-grid" id="insuranceGrid">
+    <div class="ins-card" onclick="selectInsurance('health')"><div class="ins-icon">🏥</div><h3>Health</h3></div>
+    <div class="ins-card" onclick="selectInsurance('life')"><div class="ins-icon">💼</div><h3>Life</h3></div>
+    <div class="ins-card" onclick="selectInsurance('vehicle')"><div class="ins-icon">🚗</div><h3>Vehicle</h3></div>
+    <div class="ins-card" onclick="selectInsurance('travel')"><div class="ins-icon">✈️</div><h3>Travel</h3></div>
+    <div class="ins-card" onclick="selectInsurance('property')"><div class="ins-icon">🏠</div><h3>Property</h3></div>
+  </div>
+
+  <div class="checklist-wrap" id="checklistWrap" style="display:none;">
+    <div class="checklist-box">
+      <h3 id="checklistTitle">📋 Required Documents</h3>
+      <div id="checklistItems"></div>
+    </div>
+    <div style="margin-top:1.5rem;display:flex;gap:1rem;">
+      <button class="btn btn-primary btn-lg" onclick="navigate('upload')">Proceed to Upload →</button>
+      <button class="btn btn-ghost" onclick="clearSelection()">Change Type</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== UPLOAD PAGE ===== -->
+<div class="page" id="page-upload">
+  <div class="page-header">
+    <h2>Upload Claim Documents</h2>
+    <p id="uploadSubtitle">Upload your documents for AI analysis</p>
+  </div>
+  <div class="upload-wrap">
+    <div class="upload-btns">
+      <button class="btn btn-outline btn-lg" onclick="triggerFileUpload()" id="uploadFileBtn">📁 Upload File</button>
+      <button class="btn btn-outline btn-lg" onclick="simulateDigiLocker()" id="digiBtn">🔗 Upload from DigiLocker</button>
+    </div>
+
+    <div class="upload-zone" id="dropZone">
+      <input type="file" id="fileInput" accept="image/*,.pdf" onchange="handleFileSelect(event)"/>
+      <div class="upload-icon">📤</div>
+      <p class="up-title">Drop your document here</p>
+      <p>Supports JPG, PNG, PDF up to 16MB</p>
+      <p style="margin-top:.5rem;font-size:.8rem;color:var(--accent);" id="selectedFile"></p>
+    </div>
+
+    <!-- DigiLocker Result -->
+    <div id="digiResult" style="display:none;" class="result-card">
+      <h3 style="margin-bottom:1rem;">✅ DigiLocker Documents Fetched</h3>
+      <div id="digiDocs"></div>
+    </div>
+
+    <!-- AI Processing Loader -->
+    <div id="aiLoader" style="display:none;" class="result-card">
+      <div class="loader-wrap">
+        <div class="spinner"></div>
+        <p style="font-weight:600;">AI Pipeline Running...</p>
+        <ul class="loader-steps" id="loaderSteps">
+          <li id="step1">⏳ Uploading document...</li>
+          <li id="step2">⏳ Running blur detection (OpenCV)</li>
+          <li id="step3">⏳ Extracting data (Gemini Vision OCR)</li>
+          <li id="step4">⏳ Cross-validating dates & fields</li>
+          <li id="step5">⏳ Running ML rejection classifier</li>
+          <li id="step6">⏳ Applying HITL decision logic</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- AI Result -->
+    <div id="aiResult" style="display:none;"></div>
+
+    <div style="margin-top:1.5rem;">
+      <button class="btn btn-ghost" onclick="navigate('insurance')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div class="page" id="page-dashboard">
+  <div class="dash-wrap">
+    <div class="dash-header">
+      <div>
+        <h2>Claims Dashboard</h2>
+        <p style="color:var(--muted);font-size:.875rem;" id="dashWelcome">Welcome back</p>
+      </div>
+      <button class="btn btn-primary" onclick="navigate('insurance')">+ New Claim</button>
+    </div>
+
+    <div class="alert-box" id="dashAlert" style="display:none;">
+      <span class="alert-icon">💡</span>
+      <p id="dashAlertText"></p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val" id="statTotal">0</div>
+        <div class="stat-label">Total Claims</div>
+      </div>
+      <div class="stat-card approved">
+        <div class="stat-val" id="statApproved">0</div>
+        <div class="stat-label">Approved</div>
+      </div>
+      <div class="stat-card pending">
+        <div class="stat-val" id="statPending">0</div>
+        <div class="stat-label">Pending Review</div>
+      </div>
+      <div class="stat-card rejected">
+        <div class="stat-val" id="statRejected">0</div>
+        <div class="stat-label">Rejected</div>
+      </div>
+      <div class="stat-card amount">
+        <div class="stat-val" id="statAmount">₹0</div>
+        <div class="stat-label">Total Claimed</div>
+      </div>
+    </div>
+
+    <div class="claims-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Claim #</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Health Score</th>
+            <th>Status</th>
+            <th>Progress</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="claimsTableBody">
+          <tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--muted);">No claims yet. Start by filing a new claim.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  © 2026 ClaimAssist AI. All rights reserved.
+</footer>
+
+</div><!-- end .app -->
+
+<script>
+
+
+  function togglePassword(inputId, btn) {
+  const input = document.getElementById(inputId);
+
+  if (input.type === "password") {
+    input.type = "text";
+    btn.textContent = "Hide";
+  } else {
+    input.type = "password";
+    btn.textContent = "Show";
+  }
+}
+// ===== STATE =====
+let currentPage = 'home';
+let authToken = localStorage.getItem('claimassist_token');
+let currentUser = JSON.parse(localStorage.getItem('claimassist_user') || 'null');
+let selectedInsType = null;
+let selectedFile = null;
+
+const API = 'http://localhost:5000/api';
+
+// ===== NAV =====
+function navigate(page) {
+  if (['insurance','upload','dashboard'].includes(page) && !authToken) {
+    showToast('Please sign in to continue', 'error');
+    navigate('login');
+    return;
+  }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  currentPage = page;
+  
+  if (page === 'dashboard') loadDashboard();
+  updateNav();
+  window.scrollTo(0,0);
+}
+
+function updateNav() {
+  const nl = document.getElementById('navLinks');
+  if (authToken && currentUser) {
+    nl.innerHTML = `
+      <button class="btn btn-ghost" onclick="navigate('dashboard')">Dashboard</button>
+      <button class="btn btn-ghost" onclick="navigate('insurance')">New Claim</button>
+      <button class="btn btn-outline" onclick="logout()">Sign Out</button>
+    `;
+  } else {
+    nl.innerHTML = `
+      <button class="btn btn-ghost" onclick="navigate('home')">Home</button>
+      <button class="btn btn-primary" onclick="navigate('login')" id="navLogin">Sign In</button>
+    `;
+  }
+}
+
+function logout() {
+  authToken = null; currentUser = null;
+  localStorage.removeItem('claimassist_token');
+  localStorage.removeItem('claimassist_user');
+  navigate('home');
+  showToast('Signed out successfully', 'success');
+}
+
+// ===== TOAST =====
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.className = `toast show ${type}`;
+  t.innerHTML = `<span>${type==='success'?'✅':'❌'}</span> ${msg}`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ===== AUTH =====
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const pwd = document.getElementById('loginPwd').value;
+  const err = document.getElementById('loginError');
+  const btn = document.getElementById('loginBtn');
+  
+  if (!email || !pwd) { err.textContent = 'Please fill in all fields'; return; }
+  err.textContent = '';
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email, password: pwd})
+    });
+    const data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Login failed'; return; }
+    
+    authToken = data.token; currentUser = data.user;
+    localStorage.setItem('claimassist_token', authToken);
+    localStorage.setItem('claimassist_user', JSON.stringify(currentUser));
+    showToast(`Welcome back, ${currentUser.name}!`, 'success');
+    navigate('dashboard');
+  } catch(e) {
+    // Demo mode — simulate login
+    authToken = 'demo_token_' + Date.now();
+    currentUser = {id: 1, name: 'Demo User', email};
+    localStorage.setItem('claimassist_token', authToken);
+    localStorage.setItem('claimassist_user', JSON.stringify(currentUser));
+    showToast(`Welcome back! (Demo mode — backend offline)`, 'success');
+    navigate('dashboard');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Sign In';
+  }
+}
+
+async function doRegister() {
+  const name = document.getElementById('regName').value;
+  const email = document.getElementById('regEmail').value;
+  const pwd = document.getElementById('regPwd').value;
+  const err = document.getElementById('regError');
+  const btn = document.getElementById('regBtn');
+  
+  if (!name || !email || !pwd) { err.textContent = 'Please fill in all fields'; return; }
+  if (pwd.length < 6) { err.textContent = 'Password must be at least 6 characters'; return; }
+  err.textContent = '';
+  btn.disabled = true; btn.textContent = 'Creating account...';
+  
+  try {
+    const res = await fetch(`${API}/auth/register`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name, email, password: pwd})
+    });
+    const data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Registration failed'; return; }
+    
+    authToken = data.token; currentUser = data.user;
+    localStorage.setItem('claimassist_token', authToken);
+    localStorage.setItem('claimassist_user', JSON.stringify(currentUser));
+    showToast('Account created successfully!', 'success');
+    navigate('dashboard');
+  } catch(e) {
+    // Demo mode
+    authToken = 'demo_token_' + Date.now();
+    currentUser = {id: 1, name, email};
+    localStorage.setItem('claimassist_token', authToken);
+    localStorage.setItem('claimassist_user', JSON.stringify(currentUser));
+    showToast('Account created! (Demo mode — backend offline)', 'success');
+    navigate('dashboard');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create Account';
+  }
+}
+
+// ===== INSURANCE SELECT =====
+const CHECKLISTS = {
+  health: {name:'Health Insurance', docs:[
+    {label:'Hospital Discharge Summary', required:true},
+    {label:"Doctor's Prescription", required:true},
+    {label:'Original Hospital Bills & Receipts', required:true},
+    {label:'Laboratory / Diagnostic Reports', required:true},
+    {label:'Photo ID Proof (Aadhaar/PAN)', required:true},
+    {label:'Insurance Policy Document', required:true},
+    {label:"Doctor's Referral Letter", required:false},
+    {label:'Previous Medical Records', required:false},
+  ]},
+  life: {name:'Life Insurance', docs:[
+    {label:'Original Death Certificate', required:true},
+    {label:'Original Insurance Policy', required:true},
+    {label:"Nominee's Photo ID", required:true},
+    {label:'Bank Account Details (Cancelled Cheque)', required:true},
+    {label:'Duly Filled Claim Form', required:true},
+    {label:'FIR (In case of accidental death)', required:false},
+  ]},
+  vehicle: {name:'Vehicle Insurance', docs:[
+    {label:'FIR Copy (Police Report)', required:true},
+    {label:'Vehicle Registration Certificate (RC)', required:true},
+    {label:'Valid Driving License', required:true},
+    {label:'Insurance Policy Document', required:true},
+    {label:'Vehicle Repair Bills / Estimate', required:true},
+    {label:'Accident/Damage Photographs', required:true},
+  ]},
+  travel: {name:'Travel Insurance', docs:[
+    {label:'Passport Copy', required:true},
+    {label:'Travel Tickets / Boarding Pass', required:true},
+    {label:'Travel Insurance Policy', required:true},
+    {label:'Medical Bills (if medical claim)', required:false},
+    {label:'Property Irregularity Report (Baggage loss)', required:false},
+  ]},
+  property: {name:'Property Insurance', docs:[
+    {label:'Property Ownership Documents', required:true},
+    {label:'FIR / Police Report', required:true},
+    {label:'Insurance Policy', required:true},
+    {label:'Photographs of Damage', required:true},
+    {label:'Repair Cost Estimate', required:true},
+    {label:"Owner's Photo ID", required:true},
+  ]}
+};
+
+function selectInsurance(type) {
+  selectedInsType = type;
+  document.querySelectorAll('.ins-card').forEach(c => c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  
+  const cl = CHECKLISTS[type];
+  document.getElementById('checklistTitle').textContent = `📋 ${cl.name} — Required Documents`;
+  
+  const itemsEl = document.getElementById('checklistItems');
+  itemsEl.innerHTML = cl.docs.map(d => `
+    <div class="checklist-item">
+      <div class="check-icon ${d.required ? 'required' : 'optional'}">${d.required ? '●' : '○'}</div>
+      <span class="check-label">${d.label}</span>
+      <span class="${d.required ? 'req-badge' : 'opt-badge'}">${d.required ? 'Required' : 'Optional'}</span>
+    </div>
+  `).join('');
+  
+  document.getElementById('checklistWrap').style.display = 'block';
+  document.getElementById('checklistWrap').scrollIntoView({behavior:'smooth'});
+}
+
+function clearSelection() {
+  selectedInsType = null;
+  document.querySelectorAll('.ins-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('checklistWrap').style.display = 'none';
+}
+
+// ===== UPLOAD =====
+function triggerFileUpload() {
+  document.getElementById('fileInput').click();
+}
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  selectedFile = file;
+  document.getElementById('selectedFile').textContent = `✓ Selected: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+  setTimeout(() => processFile(), 200);
+}
+
+async function simulateDigiLocker() {
+  const btn = document.getElementById('digiBtn');
+  btn.disabled = true; btn.textContent = '🔄 Connecting to DigiLocker...';
+  
+  await sleep(1200);
+  
+  // Simulate response
+  const docs = {
+    health: ['Discharge Summary (PMJAY)', 'Aadhaar Card', 'Health Card'],
+    vehicle: ['Vehicle RC (MoRTH)', 'Driving License', 'PUC Certificate'],
+    travel: ['Passport', 'Aadhaar Card'],
+    life: ['Aadhaar Card', 'PAN Card'],
+    property: ['Property Papers', 'Aadhaar Card'],
+  };
+  
+  const type = selectedInsType || 'health';
+  const docList = docs[type] || docs.health;
+  
+  const digiResult = document.getElementById('digiResult');
+  const digiDocs = document.getElementById('digiDocs');
+  digiDocs.innerHTML = `
+    <div style="margin-bottom:1rem;color:var(--muted);font-size:.85rem;">Source: DigiLocker → Verified Government Records</div>
+    ${docList.map(d => `
+      <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;margin-bottom:.5rem;">
+        <span>✅</span>
+        <span style="flex:1;font-size:.9rem;">${d}</span>
+        <span style="font-size:.75rem;color:var(--success);">Verified</span>
+      </div>
+    `).join('')}
+    <div style="margin-top:1rem;font-size:.8rem;color:var(--muted);">🔐 Aadhaar Verified • Timestamp: ${new Date().toLocaleString()}</div>
+  `;
+  digiResult.style.display = 'block';
+  showToast('Documents fetched from DigiLocker!', 'success');
+  btn.disabled = false; btn.textContent = '🔗 Upload from DigiLocker';
+}
+
+async function processFile() {
+  if (!selectedFile) { showToast('Please select a file first', 'error'); return; }
+  
+  const loader = document.getElementById('aiLoader');
+  const result = document.getElementById('aiResult');
+  loader.style.display = 'block';
+  result.style.display = 'none';
+  
+  const steps = ['step1','step2','step3','step4','step5','step6'];
+  for (let i = 0; i < steps.length; i++) {
+    await sleep(600);
+    document.getElementById(steps[i]).className = 'active';
+    document.getElementById(steps[i]).textContent = '🔄 ' + document.getElementById(steps[i]).textContent.slice(2);
+    if (i > 0) {
+      document.getElementById(steps[i-1]).className = 'done';
+      document.getElementById(steps[i-1]).textContent = '✅ ' + document.getElementById(steps[i-1]).textContent.slice(2);
+    }
+  }
+  await sleep(600);
+  document.getElementById(steps[steps.length-1]).className = 'done';
+  
+  // Try real API, fall back to demo
+  let aiData;
+  try {
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('insurance_type', selectedInsType || 'health');
+    
+    const res = await fetch(`${API}/claims/upload`, {
+      method: 'POST',
+      headers: {'Authorization': `Bearer ${authToken}`},
+      body: formData
+    });
+    if (!res.ok) throw new Error('API error');
+    aiData = await res.json();
+  } catch(e) {
+    // Demo fallback
+    aiData = generateDemoResult(selectedInsType || 'health');
+  }
+  
+  loader.style.display = 'none';
+  result.style.display = 'block';
+  result.innerHTML = renderAIResult(aiData);
+}
+
+function generateDemoResult(type) {
+  const rejProb = Math.random() * 0.6;
+  const score = Math.round((1 - rejProb) * 100);
+  const reasons = [];
+  
+  if (Math.random() > 0.6) reasons.push({type:'missing_signature',severity:'high',message:"Required signature not detected on the document",icon:'✍️'});
+  if (Math.random() > 0.7) reasons.push({type:'quality_issue',severity:'medium',message:"Document image has partial blur — some fields may be unclear",icon:'📷'});
+  if (Math.random() > 0.8) reasons.push({type:'date_mismatch',severity:'high',message:"Claim date appears to precede admission date — requires verification",icon:'📅'});
+  
+  const hitl = rejProb < 0.1 
+    ? {action:'auto_approve',status:'approved',message:'Auto-approved: High confidence score',requires_human:false}
+    : rejProb < 0.3
+    ? {action:'needs_confirmation',status:'pending',message:'Requires your confirmation before processing',requires_human:true}
+    : {action:'manual_review',status:'under_review',message:'Flagged for manual review by claims officer',requires_human:true};
+  
+  const extracted = type === 'health' ? {
+    patient_name:'Rajesh Kumar',
+    policy_number:`HLT${Math.floor(Math.random()*900000+100000)}`,
+    admission_date:'2024-11-15',
+    discharge_date:'2024-11-20',
+    claim_amount: Math.round(Math.random()*200000+10000),
+    hospital_name:'Apollo Hospitals, Mumbai',
+    diagnosis:'Acute Appendicitis',
+    has_signature: Math.random() > 0.3,
+    extraction_confidence: (0.75 + Math.random()*0.2).toFixed(2),
+  } : {
+    policy_number:`POL${Math.floor(Math.random()*900000+100000)}`,
+    claim_amount: Math.round(Math.random()*100000+5000),
+    has_signature: Math.random() > 0.3,
+    extraction_confidence: (0.75 + Math.random()*0.2).toFixed(2),
+  };
+  
+  return {
+    claim_number: `CLM${new Date().toISOString().slice(0,10).replace(/-/g,'')}${Math.floor(Math.random()*9000+1000)}`,
+    status: hitl.status,
+    health_score: score,
+    rejection_probability: rejProb.toFixed(2),
+    claim_amount: extracted.claim_amount,
+    ai_reasons: reasons,
+    extracted_data: extracted,
+    hitl,
+    blur_analysis: {quality: Math.random()>0.3 ? 'good' : 'acceptable', variance: (100+Math.random()*300).toFixed(1), score: Math.round(70+Math.random()*30)}
+  };
+}
+
+function renderAIResult(data) {
+  const score = data.health_score;
+  const scoreClass = score >= 80 ? 'good' : score >= 60 ? 'warn' : 'bad';
+  const rejPct = Math.round(data.rejection_probability * 100);
+  const blurQ = data.blur_analysis?.quality || 'acceptable';
+  const blurClass = blurQ === 'good' ? 'good' : blurQ === 'acceptable' ? 'warn' : 'bad';
+  
+  const statusMap = {
+    approved: '✅ Approved',
+    pending: '⏳ Awaiting Confirmation',
+    under_review: '🔍 Manual Review',
+    rejected: '❌ Rejected'
+  };
+  
+  let hitlHtml = '';
+  if (data.hitl?.requires_human) {
+    hitlHtml = `
+      <div class="hitl-box">
+        <div class="hitl-icon">${data.hitl.action === 'needs_confirmation' ? '🤔' : '👤'}</div>
+        <div class="hitl-text" style="flex:1">
+          <h4>${data.hitl.action === 'needs_confirmation' ? 'Your Confirmation Required' : 'Escalated for Manual Review'}</h4>
+          <p>${data.hitl.message}</p>
+          ${data.hitl.action === 'needs_confirmation' ? `
+          <div class="hitl-actions">
+            <button class="btn btn-success" onclick="confirmClaim('${data.claim_number}','approve')">✅ Approve Claim</button>
+            <button class="btn btn-danger" onclick="confirmClaim('${data.claim_number}','reject')">❌ Reject Claim</button>
+          </div>` : ''}
+        </div>
+      </div>`;
+  }
+  
+  const reasonsHtml = data.ai_reasons?.length ? `
+    <div class="reasons-list">
+      <h4>AI Findings (${data.ai_reasons.length})</h4>
+      ${data.ai_reasons.map(r => `
+        <div class="reason-item ${r.severity || 'low'}">
+          <span class="reason-icon">${r.icon || '⚠️'}</span>
+          <span class="reason-text">${r.message}</span>
+          <span class="reason-sev ${r.severity || 'low'}">${(r.severity||'low').toUpperCase()}</span>
+        </div>
+      `).join('')}
+    </div>
+  ` : '<div style="color:var(--success);font-size:.9rem;margin-bottom:1.5rem;">✅ No issues detected by AI</div>';
+  
+  const extData = data.extracted_data || {};
+  const extKeys = Object.entries(extData).filter(([k]) => !['has_signature','has_stamp','text_clarity','extraction_confidence'].includes(k));
+  
+  return `
+    <div class="result-card">
+      <div class="result-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem;">
+        <div>
+          <div class="claim-num">Claim # ${data.claim_number}</div>
+          <div style="font-weight:600;font-size:1.05rem;margin-top:.25rem;">AI Analysis Complete</div>
+        </div>
+        <span class="status-chip ${data.status}">${statusMap[data.status] || data.status}</span>
+      </div>
+
+      <div class="score-grid">
+        <div class="score-box">
+          <div class="score-val ${scoreClass}">${score}</div>
+          <div class="score-label">Claim Health Score</div>
+        </div>
+        <div class="score-box">
+          <div class="score-val ${rejPct > 40 ? 'bad' : rejPct > 20 ? 'warn' : 'good'}">${rejPct}%</div>
+          <div class="score-label">Rejection Probability</div>
+        </div>
+        <div class="score-box">
+          <div class="score-val" style="color:var(--accent2);">₹${(data.claim_amount||0).toLocaleString('en-IN')}</div>
+          <div class="score-label">Claim Amount</div>
+        </div>
+      </div>
+
+      <div class="health-bar-wrap">
+        <div class="health-bar-label">
+          <span>Claim Health Score</span>
+          <span style="font-family:var(--mono)">${score}/100</span>
+        </div>
+        <div class="health-bar">
+          <div class="health-fill" style="width:${score}%;background:${score>=80?'var(--success)':score>=60?'var(--warning)':'var(--danger)'};"></div>
+        </div>
+      </div>
+
+      <div class="blur-meter">
+        <div class="blur-dot ${blurClass}"></div>
+        <div class="blur-text">
+          Document Quality: <strong>${blurQ.toUpperCase()}</strong>
+          <span> (OpenCV Laplacian variance: ${data.blur_analysis?.variance || 'N/A'})</span>
+        </div>
+      </div>
+
+      ${hitlHtml}
+      ${reasonsHtml}
+
+      ${extKeys.length ? `
+      <details>
+        <summary>📄 Extracted Document Data (${extKeys.length} fields)</summary>
+        <div class="extracted-grid" style="margin-top:.75rem;">
+          ${extKeys.map(([k,v]) => `
+            <div class="extracted-item">
+              <div class="ext-key">${k.replace(/_/g,' ')}</div>
+              <div class="ext-val">${v}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="margin-top:.75rem;font-size:.8rem;color:var(--muted);">
+          Extraction confidence: ${Math.round((extData.extraction_confidence||0.85)*100)}% | 
+          Signature: ${extData.has_signature ? '✅ Detected' : '❌ Not found'}
+        </div>
+      </details>
+      ` : ''}
+
+      <div style="margin-top:1.5rem;display:flex;gap:.75rem;">
+        <button class="btn btn-primary" onclick="navigate('dashboard')">View Dashboard →</button>
+        <button class="btn btn-ghost" onclick="resetUpload()">Upload Another</button>
+      </div>
+    </div>
+  `;
+}
+
+async function confirmClaim(claimNum, action) {
+  try {
+    const res = await fetch(`${API}/claims/confirm/${claimNum}`, {
+      method:'POST',
+      headers:{'Authorization':`Bearer ${authToken}`,'Content-Type':'application/json'},
+      body: JSON.stringify({action})
+    });
+    const data = await res.json();
+    showToast(`Claim ${action === 'approve' ? 'approved' : 'rejected'} successfully`, 'success');
+    navigate('dashboard');
+  } catch(e) {
+    showToast(`Claim ${action === 'approve' ? 'approved' : 'rejected'} (demo)`, 'success');
+    navigate('dashboard');
+  }
+}
+
+function resetUpload() {
+  selectedFile = null;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('selectedFile').textContent = '';
+  document.getElementById('aiResult').style.display = 'none';
+  document.getElementById('aiLoader').style.display = 'none';
+  document.getElementById('digiResult').style.display = 'none';
+  ['step1','step2','step3','step4','step5','step6'].forEach(s => {
+    const el = document.getElementById(s);
+    el.className = ''; el.textContent = '⏳ ' + el.textContent.replace(/^[^\s]+\s/, '');
+  });
+}
+
+// ===== DASHBOARD =====
+async function loadDashboard() {
+  if (!currentUser) return;
+  document.getElementById('dashWelcome').textContent = `Welcome back, ${currentUser.name}`;
+  
+  try {
+    const res = await fetch(`${API}/claims/all`, {
+      headers: {'Authorization': `Bearer ${authToken}`}
+    });
+    const data = await res.json();
+    renderDashboard(data);
+  } catch(e) {
+    // Demo data
+    renderDashboard(generateDemoDashboard());
+  }
+}
+
+function generateDemoDashboard() {
+  const statuses = ['approved','approved','pending','under_review','rejected','approved'];
+  const types = ['health','vehicle','travel','health','property','life'];
+  const claims = statuses.map((s,i) => ({
+    claim_number: `CLM202411${1000+i}`,
+    insurance_type: types[i],
+    status: s,
+    claim_amount: Math.round(Math.random()*200000+10000),
+    health_score: Math.round(60+Math.random()*40),
+    date_requested: new Date(Date.now()-i*86400000*3).toISOString(),
+    date_approved: s === 'approved' ? new Date(Date.now()-i*86400000).toISOString() : null,
+  }));
+  
+  return {
+    claims,
+    stats: {
+      total: claims.length,
+      approved: claims.filter(c=>c.status==='approved').length,
+      pending: claims.filter(c=>['pending','under_review'].includes(c.status)).length,
+      rejected: claims.filter(c=>c.status==='rejected').length,
+      total_amount: claims.reduce((a,c)=>a+c.claim_amount,0)
+    }
+  };
+}
+
+function renderDashboard(data) {
+  const stats = data.stats || {};
+  document.getElementById('statTotal').textContent = stats.total || 0;
+  document.getElementById('statApproved').textContent = stats.approved || 0;
+  document.getElementById('statPending').textContent = stats.pending || 0;
+  document.getElementById('statRejected').textContent = stats.rejected || 0;
+  document.getElementById('statAmount').textContent = `₹${((stats.total_amount||0)/1000).toFixed(1)}K`;
+  
+  // Alert
+  const alert = document.getElementById('dashAlert');
+  const alertText = document.getElementById('dashAlertText');
+  if (stats.pending > 0) {
+    alert.style.display = 'flex';
+    alertText.textContent = `You have ${stats.pending} claim(s) awaiting review. Tap to check status or confirm pending actions.`;
+  } else {
+    alert.style.display = 'none';
+  }
+  
+  const tbody = document.getElementById('claimsTableBody');
+  if (!data.claims?.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--muted);">No claims yet. Start by filing a new claim.</td></tr>';
+    return;
+  }
+  
+  const statusLabels = {approved:'✅ Approved',pending:'⏳ Pending',under_review:'🔍 In Review',rejected:'❌ Rejected'};
+  const progressMap = {approved:[1,1,1],pending:[1,1,0],under_review:[1,1,0],rejected:[1,0,0]};
+  
+  tbody.innerHTML = data.claims.map(c => {
+    const prog = progressMap[c.status] || [1,0,0];
+    const tracker = `
+      <div class="tracker">
+        <div class="track-dot ${prog[0]?'done':'todo'}"></div>
+        <div class="track-line ${prog[0]&&prog[1]?'done':'todo'}"></div>
+        <div class="track-dot ${prog[1]?'done':c.status!=='rejected'?'active':'todo'}"></div>
+        <div class="track-line ${prog[1]&&prog[2]?'done':'todo'}"></div>
+        <div class="track-dot ${prog[2]?'done':'todo'}"></div>
+      </div>
+    `;
+    const scoreColor = c.health_score>=80?'var(--success)':c.health_score>=60?'var(--warning)':'var(--danger)';
+    return `
+      <tr>
+        <td style="font-family:var(--mono);font-size:.8rem;">${c.claim_number}</td>
+        <td style="text-transform:capitalize;">${c.insurance_type}</td>
+        <td>₹${(c.claim_amount||0).toLocaleString('en-IN')}</td>
+        <td><span style="color:${scoreColor};font-family:var(--mono);font-weight:600;">${c.health_score||0}</span></td>
+        <td><span class="status-chip ${c.status}">${statusLabels[c.status]||c.status}</span></td>
+        <td>${tracker}</td>
+        <td style="color:var(--muted);font-size:.8rem;">${new Date(c.date_requested).toLocaleDateString('en-IN')}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ===== UTILS =====
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// Init
+if (authToken) updateNav();
+</script>
+
+
+
+<div id="chat-container" style="position:fixed; bottom:20px; right:20px; z-index:9999;">
+    <button id="chat-btn" style="background:var(--accent); border:none; width:60px; height:60px; border-radius:50%; color:white; font-size:1.5rem; cursor:pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">💬</button>
+    
+    <div id="chat-box" style="display:none; width:350px; height:450px; background:var(--surface); border:1px solid var(--border); border-radius:15px; flex-direction:column; margin-bottom:15px; position:absolute; bottom:70px; right:0; overflow:hidden;">
+        <div style="background:var(--card); padding:15px; border-bottom:1px solid var(--border); font-weight:bold; color:var(--accent2);">ClaimAssist Support</div>
+        <div id="messages" style="flex:1; padding:15px; overflow-y:auto; color:var(--text); font-size:0.9rem;"></div>
+        <div style="padding:10px; display:flex; gap:5px; background:var(--card);">
+            <input id="user-input" type="text" placeholder="Type a message..." style="flex:1; background:var(--bg); border:1px solid var(--border); color:white; padding:8px; border-radius:5px;">
+            <button onclick="sendMessage()" style="background:var(--accent); border:none; color:white; padding:8px 15px; border-radius:5px; cursor:pointer;">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatBtn = document.getElementById('chat-btn');
+    const chatBox = document.getElementById('chat-box');
+    const messages = document.getElementById('messages');
+
+    chatBtn.onclick = () => {
+        chatBox.style.display = chatBox.style.display === 'none' ? 'flex' : 'none';
+    };
+
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        messages.innerHTML += `<div style="margin-bottom:10px;"><b>You:</b> ${text}</div>`;
+        input.value = '';
+
+        const res = await fetch('http://localhost:5000/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        messages.innerHTML += `<div style="margin-bottom:10px; color:var(--accent2);"><b>AI:</b> ${data.reply}</div>`;
+        messages.scrollTop = messages.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
