@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models.database import get_db
+from models.database import db, Claim, Document
 from services.ai_service import analyze_document
 import os
 import json
@@ -8,9 +8,10 @@ import uuid
 import random
 from datetime import datetime
 
+# Initialize the blueprint
 claims_bp = Blueprint('claims', __name__)
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf', 'gif', 'webp'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf', 'webp'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -18,185 +19,142 @@ def allowed_file(filename):
 def generate_claim_number():
     return f"CLM{datetime.now().strftime('%Y%m%d')}{random.randint(1000, 9999)}"
 
-@claims_bp.route('/upload', methods=['POST'])
+# 1. Initiate Claim Session (Autonomous Tracking Start)
+@claims_bp.route('/initiate', methods=['POST'])
 @jwt_required()
-def upload_claim():
+def initiate_claim():
     user_id = get_jwt_identity()
-    insurance_type = request.form.get('insurance_type', 'health')
+    data = request.get_json()
+    
+    new_claim = Claim(
+        user_id=user_id,
+        claim_number=generate_claim_number(),
+        insurance_type=data.get('type', 'health'),
+        status='draft' # Set to draft until all files are uploaded
+    )
+    db.session.add(new_claim)
+    db.session.commit()
+    
+    return jsonify({
+        "success": True, 
+        "claim_uuid": new_claim.claim_uuid, 
+        "claim_number": new_claim.claim_number
+    })
+
+# 2. Upload and Validate Individual Documents (N-file Support)
+@claims_bp.route('/upload-doc', methods=['POST'])
+@jwt_required()
+def upload_doc():
+    user_id = get_jwt_identity()
+    claim_uuid = request.form.get('claim_uuid')
+    doc_type = request.form.get('doc_type') # e.g., 'Hospital Bill'
     
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
     
     file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
-    
-    if not allowed_file(file.filename):
-        return jsonify({'error': 'File type not allowed. Use PNG, JPG, PDF'}), 400
-    
-    # Save file
-    ext = file.filename.rsplit('.', 1)[1].lower()
-    unique_filename = f"{user_id}_{uuid.uuid4().hex[:8]}.{ext}"
-    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename)
-    file.save(file_path)
-    
-    # Run AI pipeline
-    try:
-        ai_results = analyze_document(file_path, insurance_type)
-    except Exception as e:
-        ai_results = {
-            "blur_analysis": {"quality": "acceptable"},
-            "extracted_data": {},
-            "ai_reasons": [],
-            "rejection_probability": 0.3,
-            "health_score": 70,
-            "claim_amount": 0,
-            "hitl": {"action": "needs_confirmation", "status": "pending", "message": "AI analysis error, manual review recommended", "requires_human": True}
-        }
-    
-    # Save to DB
-    db = get_db()
-    try:
-        claim_number = generate_claim_number()
-        status = ai_results["hitl"]["status"]
-        date_approved = datetime.now().isoformat() if status == "approved" else None
-        
-        db.execute('''
-            INSERT INTO claims 
-            (user_id, claim_number, insurance_type, status, claim_amount, health_score,
-             rejection_probability, ai_reasons, file_path, extracted_data, hitl_action, date_approved)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            user_id, claim_number, insurance_type, status,
-            ai_results["claim_amount"], ai_results["health_score"],
-            ai_results["rejection_probability"],
-            json.dumps(ai_results["ai_reasons"]),
-            unique_filename,
-            json.dumps(ai_results["extracted_data"]),
-            ai_results["hitl"]["action"],
-            date_approved
-        ))
-        db.commit()
-        
-        claim = db.execute('SELECT * FROM claims WHERE claim_number = ?', (claim_number,)).fetchone()
-        
-        return jsonify({
-            "success": True,
-            "claim_number": claim_number,
-            "status": status,
-            "health_score": ai_results["health_score"],
-            "rejection_probability": ai_results["rejection_probability"],
-            "claim_amount": ai_results["claim_amount"],
-            "ai_reasons": ai_results["ai_reasons"],
-            "extracted_data": ai_results["extracted_data"],
-            "hitl": ai_results["hitl"],
-            "blur_analysis": ai_results["blur_analysis"],
-        })
-    finally:
-        db.close()
+    if file.filename == '' or not allowed_file(file.filename):
+        return jsonify({'error': 'Invalid file format. Use PNG, JPG, or PDF'}), 400
 
-@claims_bp.route('/digilocker-simulate', methods=['POST'])
-@jwt_required()
-def digilocker_simulate():
-    """Simulated DigiLocker document fetch"""
-    user_id = get_jwt_identity()
-    data = request.get_json()
-    insurance_type = data.get('insurance_type', 'health')
+    # Find the current claim session
+    claim = Claim.query.filter_by(claim_uuid=claim_uuid, user_id=user_id).first()
+    if not claim:
+        return jsonify({'error': 'Claim session not found'}), 404
+
+    # Save physical file
+    ext = file.filename.rsplit('.', 1)[1].lower()
+    filename = f"{claim_uuid}_{uuid.uuid4().hex[:5]}.{ext}"
+    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+    file.save(file_path)
+
+    # 3. Run AI Pipeline (YOLO for Seals, Groq for OCR)
+    try:
+        ai_results = analyze_document(file_path, claim.insurance_type)
+    except Exception as e:
+        current_app.logger.error(f"AI Pipeline Error: {e}")
+        return jsonify({'error': 'AI Processing failed'}), 500
+
+    # 4. Save individual document to the database for tracking
+    new_doc = Document(
+        claim_id=claim.id,
+        filename=filename,
+        doc_type=doc_type,
+        is_verified=not ai_results.get("blur_analysis", {}).get("is_blurry", False),
+        yolo_data=json.dumps(ai_results.get("yolo_detections", {}))
+    )
+    db.session.add(new_doc)
     
-    # Simulate DigiLocker response
-    simulated_docs = {
-        "health": {
-            "source": "DigiLocker → PMJAY Health Records",
-            "documents": [
-                {"name": "Discharge Summary", "type": "discharge_summary", "verified": True},
-                {"name": "Aadhaar Card", "type": "id_proof", "verified": True},
-                {"name": "Health Card", "type": "health_card", "verified": True},
-            ]
-        },
-        "vehicle": {
-            "source": "DigiLocker → MoRTH Records",
-            "documents": [
-                {"name": "Vehicle RC", "type": "rc_book", "verified": True},
-                {"name": "Driving License", "type": "driving_license", "verified": True},
-                {"name": "PUC Certificate", "type": "puc", "verified": True},
-            ]
-        }
-    }
-    
-    doc_data = simulated_docs.get(insurance_type, simulated_docs["health"])
-    
+    # Update claim-level data if AI returned scoring info
+    if ai_results.get("health_score"):
+        claim.health_score = ai_results["health_score"]
+        claim.claim_amount = ai_results.get("claim_amount", 0)
+        claim.ai_reasons = json.dumps(ai_results.get("ai_reasons", []))
+        # Optional: update status if AI provides immediate guidance
+        if ai_results.get("hitl", {}).get("status"):
+             # We keep it as draft until final_submit is called, 
+             # but we can store the suggested status
+             pass
+
+    db.session.commit()
+
     return jsonify({
         "success": True,
-        "source": doc_data["source"],
-        "documents": doc_data["documents"],
-        "message": "Documents successfully fetched from DigiLocker",
-        "aadhaar_verified": True,
-        "timestamp": datetime.now().isoformat()
+        "status": "verified",
+        "doc_type": doc_type,
+        "analysis": ai_results
     })
 
-@claims_bp.route('/confirm/<claim_number>', methods=['POST'])
+# 3. Final Submit (Triggers the switch from 'draft' to 'pending')
+@claims_bp.route('/submit/<uuid>', methods=['POST'])
 @jwt_required()
-def confirm_claim(claim_number):
+def final_submit(uuid):
     user_id = get_jwt_identity()
-    data = request.get_json()
-    action = data.get('action', 'approve')
+    claim = Claim.query.filter_by(claim_uuid=uuid, user_id=user_id).first()
     
-    db = get_db()
-    try:
-        claim = db.execute('SELECT * FROM claims WHERE claim_number = ? AND user_id = ?',
-                          (claim_number, user_id)).fetchone()
-        if not claim:
-            return jsonify({'error': 'Claim not found'}), 404
-        
-        if action == 'approve':
-            status = 'approved'
-            date_approved = datetime.now().isoformat()
-        else:
-            status = 'rejected'
-            date_approved = None
-        
-        db.execute('UPDATE claims SET status = ?, date_approved = ? WHERE claim_number = ?',
-                  (status, date_approved, claim_number))
-        db.commit()
-        
-        return jsonify({'success': True, 'status': status, 'claim_number': claim_number})
-    finally:
-        db.close()
+    if not claim:
+        return jsonify({'error': 'Claim not found'}), 404
 
+    # Verification: Ensure at least one document exists
+    if not claim.documents:
+        return jsonify({'error': 'Cannot submit a claim without documents'}), 400
+
+    claim.status = 'pending'
+    db.session.commit()
+
+    return jsonify({
+        "success": True, 
+        "message": "Claim submitted successfully!", 
+        "status": claim.status
+    })
+
+# 4. Dashboard Endpoint (Autonomous Tracker View)
 @claims_bp.route('/all', methods=['GET'])
 @jwt_required()
 def get_claims():
     user_id = get_jwt_identity()
-    db = get_db()
-    try:
-        claims = db.execute(
-            'SELECT * FROM claims WHERE user_id = ? ORDER BY date_requested DESC',
-            (user_id,)
-        ).fetchall()
-        
-        result = []
-        for c in claims:
-            claim_dict = dict(c)
-            claim_dict['ai_reasons'] = json.loads(claim_dict.get('ai_reasons', '[]'))
-            claim_dict['extracted_data'] = json.loads(claim_dict.get('extracted_data', '{}'))
-            result.append(claim_dict)
-        
-        # Stats
-        total = len(result)
-        approved = sum(1 for c in result if c['status'] == 'approved')
-        pending = sum(1 for c in result if c['status'] in ['pending', 'under_review'])
-        rejected = sum(1 for c in result if c['status'] == 'rejected')
-        total_amount = sum(c.get('claim_amount', 0) for c in result)
-        
-        return jsonify({
-            "claims": result,
-            "stats": {
-                "total": total,
-                "approved": approved,
-                "pending": pending,
-                "rejected": rejected,
-                "total_amount": round(total_amount, 2)
-            }
+    claims = Claim.query.filter_by(user_id=user_id).order_by(Claim.created_at.desc()).all()
+    
+    result = []
+    for c in claims:
+        result.append({
+            "id": c.id,
+            "claim_number": c.claim_number,
+            "claim_uuid": c.claim_uuid,
+            "insurance_type": c.insurance_type,
+            "status": c.status,
+            "health_score": c.health_score,
+            "claim_amount": c.claim_amount,
+            "created_at": c.created_at.isoformat(),
+            "ai_reasons": json.loads(c.ai_reasons or '[]'),
+            "document_count": len(c.documents)
         })
-    finally:
-        db.close()
+
+    stats = {
+        "total": len(result),
+        "approved": sum(1 for c in result if c['status'] == 'approved'),
+        "pending": sum(1 for c in result if c['status'] == 'pending'),
+        "rejected": sum(1 for c in result if c['status'] == 'rejected'),
+        "total_amount": round(sum(c['claim_amount'] for c in result), 2)
+    }
+
+    return jsonify({"claims": result, "stats": stats})
