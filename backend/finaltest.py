@@ -19,7 +19,7 @@ def test_full_pipeline():
     print(f"Quality: {results['blur_analysis']['quality']} (Variance: {results['blur_analysis']['variance']})")
     print(f"Health Score: {results['health_score']}/100")
     print(f"Decision: {results['hitl']['message']}")
-    print(f"Extracted Amount: ₹{results['claim_amount']}")
+    print(f"Extracted Amount: ₹{results['extracted_data'].get('claim_amount', 'Not Found')}")
 
 if __name__ == "__main__":
     test_full_pipeline()
