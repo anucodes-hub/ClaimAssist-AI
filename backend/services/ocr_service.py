@@ -1,43 +1,49 @@
-import pytesseract
-from PIL import Image
 import os
 import json
-from groq import Groq
+from google import genai
+from PIL import Image
 from dotenv import load_dotenv
 
+# 1. Load Environment Variables
 load_dotenv()
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# If on Windows, uncomment and point to your tesseract.exe
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# 2. Initialize the New GenAI Client
+# This replaces both pytesseract and the Groq client for OCR tasks
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 def extract_structured_data(image_path, insurance_type):
+    """
+    Uses Gemini 2.0 Flash to perform multimodal OCR and JSON extraction.
+    No local Tesseract installation required.
+    """
     try:
-        # 1. Local OCR with Tesseract
-        with Image.open(image_path) as img:
-            raw_text = pytesseract.image_to_string(img)
+        # Load the image for the model
+        img = Image.open(image_path)
         
-        if not raw_text.strip():
-            return {"error": "No text detected in document"}
-
-        # 2. Use Groq to parse the raw text into JSON (The "Smart" Alternative)
+        # 3. Multimodal Prompt (Combines OCR + Parsing)
         prompt = f"""
-        Extract the following fields from this RAW OCR TEXT from a {insurance_type} document.
-        Fields: patient_name, policy_number, claim_amount, admission_date, hospital_gst_number.
+        Analyze this {insurance_type} insurance document image.
+        Extract the following fields and return ONLY a valid JSON object:
+        - patient_name
+        - policy_number
+        - claim_amount (extract only the numeric value)
+        - admission_date
+        - hospital_gst_number
         
-        RAW TEXT:
-        {raw_text}
-
-        Return ONLY a JSON object. If a field is not found, set it to null.
+        If a field is not visible, set its value to null.
         """
 
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"}
+        # 4. Generate Content with Stable Model Name
+        # Using 'gemini-2.0-flash' resolves the 404/NotFound errors
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=[prompt, img]
         )
 
-        return json.loads(response.choices[0].message.content)
+        # 5. Parse and Return JSON
+        # The new SDK returns a clean response object
+        return json.loads(response.text)
 
     except Exception as e:
+        print(f"Extraction Pipeline Error: {e}")
         return {"error": str(e)}

@@ -158,3 +158,19 @@ def get_claims():
     }
 
     return jsonify({"claims": result, "stats": stats})
+
+
+# Add this to the end of your claims.py file
+@claims_bp.route('/status/<uuid>', methods=['GET'])
+@jwt_required()
+def check_status(uuid):
+    user_id = get_jwt_identity()
+    claim = Claim.query.filter_by(claim_uuid=uuid, user_id=user_id).first()
+    if not claim:
+        return jsonify({'error': 'Claim not found'}), 404
+        
+    return jsonify({
+        "status": claim.status,
+        "health_score": claim.health_score,
+        "updated_at": claim.updated_at.isoformat()
+    })
