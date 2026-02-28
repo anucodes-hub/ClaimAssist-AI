@@ -14,6 +14,7 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 app = Flask(__name__)
 
+
 # 3. Flask Configuration
 app.config['JWT_SECRET_KEY'] = 'claimassist-hackathon-secret-2024'
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), '..', 'uploads')
@@ -58,6 +59,7 @@ from routes.insurance import insurance_bp
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(claims_bp, url_prefix='/api/claims')
 app.register_blueprint(insurance_bp, url_prefix='/api/insurance')
+print(app.url_map)
 
 # 7. Start Server
 if __name__ == '__main__':

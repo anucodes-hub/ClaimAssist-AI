@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.database import get_db
-from services.ai_service import analyze_document
+from ai_service import analyze_document
 import os
 import json
 import uuid
