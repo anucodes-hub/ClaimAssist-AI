@@ -87,7 +87,7 @@ ClaimAssist solves this using AI-powered document intelligence and workflow auto
 | Layer        | Technology |
 |--------------|------------|
 | Frontend     | HTML, CSS, JavaScript |
-| Backend      | FastAPI |
+| Backend      | FlaskAPI |
 | Database     | PostgreSQL |
 | ORM          | SQLAlchemy |
 | Auth         | JWT |
