@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+echo backend/claimassist.db >> .gitignore
+git add .gitignore

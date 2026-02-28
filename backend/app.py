@@ -14,7 +14,12 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 app = Flask(__name__)
 
+HEAD
+
+# 3. Flask Configuration
+
 # 3. Flask & Database Configuration
+origin/main
 app.config['JWT_SECRET_KEY'] = 'claimassist-hackathon-secret-2024'
 # Ensure upload folder points to the correct root 'uploads' directory
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'uploads')
@@ -67,6 +72,7 @@ from routes.insurance import insurance_bp
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(claims_bp, url_prefix='/api/claims')
 app.register_blueprint(insurance_bp, url_prefix='/api/insurance')
+print(app.url_map)
 
 # 7. Start Server & Create Tables
 if __name__ == '__main__':
